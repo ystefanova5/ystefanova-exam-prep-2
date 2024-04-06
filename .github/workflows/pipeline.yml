@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build_and_test:
+  build_and_run_unit_tests:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout the repository
@@ -25,9 +25,8 @@ jobs:
       run: echo "ystefanova"
   
   run-ui-tests:
-    needs: build_and_test
+    needs: build_and_run_unit_tests
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout the repository
       uses: actions/checkout@v4
@@ -44,3 +43,13 @@ jobs:
       run: npm run start &
     - name: Run UI tests
       run: npm run test:ui
+  
+  deploy-to-prod:
+    needs: run-ui-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to production
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{ secrets.MY_RENDER_SERVICE_ID }}
+          api-key: ${{ secrets.MY_RENDER_API_KEY }}    
